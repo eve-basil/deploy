@@ -1,0 +1,19 @@
+---
+root_domain: something.com
+refapi_envs:
+  DB_HOST: mysql.example.com
+  DB_NAME: reference
+  DB_USER: mysqluser
+  DB_PASS: mysqlpass
+  REDIS_HOST: redis.example.com
+  REDIS_PASSWORD: redispass
+watches_envs:
+  DB_HOST: mysql.example.com
+  DB_NAME: basil
+  DB_USER: mysqluser
+  DB_PASS: mysqlpass
+prices_envs:
+  DB_HOST: mysql.example.com
+  DB_NAME: basil
+  DB_USER: mysqluser
+  DB_PASS: mysqlpass

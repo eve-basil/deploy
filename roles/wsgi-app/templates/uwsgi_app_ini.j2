@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+[uwsgi]
+socket = :{{ uwsgi_port }}
+master = true
+processes = 8
+
+chdir = {{ app_root }}
+virtualenv = {{ app_venv }}
+module = {{ wsgi_app_entry }}
+
+{% for env_var, env_value in wsgi_envs.items() %}
+env = {{ env_var | upper }}={{ env_value }}
+{% endfor %}

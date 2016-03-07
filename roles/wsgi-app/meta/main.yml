@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: Steve Lewis
+  description: An Ansible Galaxy Role for Deploying Basil services
+  company:
+  license: Apache
+  min_ansible_version: 2.0
+  platforms:
+  - name: Ubuntu
+    versions:
+    - trusty
+  categories:
+  - cloud
+dependencies: []

@@ -1,0 +1,69 @@
+---
+- name: Install nginx webserver
+  apt:
+    pkg: nginx-full
+    state: present
+  become: yes
+  tags:
+    - apt
+    - nginx
+
+- name: Disable default configuration
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  become: yes
+  tags:
+    - nginx
+  notify: Restart nginx
+
+- name: Set nginx directories permissions
+  file:
+    path: "{{ item }}"
+    state: directory
+    group: "{{ web_group }}"
+    mode: 0755
+  with_items:
+      - /var/log/nginx
+      - /etc/nginx
+      - /etc/nginx/sites-available
+      - /etc/nginx/sites-enabled
+  become: yes
+  tags:
+    - nginx
+
+- name: Set nginx logs permissions
+  file:
+    path: "/var/log/nginx/{{ item }}"
+    state: "file owner={{ web_group }}"
+    group: "{{ web_group }}"
+    mode: 0644
+  with_items:
+      - access.log
+      - error.log
+  become: yes
+  tags:
+    - nginx
+
+# Configure app
+- name: Configure nginx
+  template:
+    src: nginx_app_conf.j2
+    dest: "/etc/nginx/sites-available/{{ nginx_app_config }}"
+  become: yes
+  tags:
+    - nginx
+    - app-deploy
+  notify: Restart nginx
+
+- name: Link to enable nginx configuration
+  file:
+    src: "/etc/nginx/sites-available/{{ nginx_app_config }}"
+    path: "/etc/nginx/sites-enabled/{{ nginx_app_config }}"
+    state: link
+  become: yes
+  tags:
+    - nginx
+    - app-deploy
+  notify: Restart nginx
+

@@ -1,0 +1,36 @@
+---
+- name: Install supervisord
+  apt: name=supervisor state=present
+  become: yes
+  tags:
+    - apt
+    - supervisord
+
+- name: Set permissions on supervisor config and log directories
+  file: path={{ item }} group={{ web_group }} state=directory mode=0755
+  with_items:
+     - /etc/supervisor
+     - /etc/supervisor/conf.d
+     - /var/log/supervisor
+  become: yes
+  tags:
+    - supervisord
+
+- name: Modify supervisor http_server configuration
+  ini_file: dest=/etc/supervisor/supervisord.conf section=unix_http_server
+            option={{ item.key }} value={{ item.value }}
+  with_dict:
+      chmod: "0770"
+      chown: root:{{ web_group }}
+  become: yes
+  tags:
+    - supervisord
+  notify: Restart supervisord
+
+- name: Update service configuration for web app
+  template: src=supervisor_app_conf.j2 dest=/etc/supervisor/conf.d/{{ supervisor_app_config }}
+  become: yes
+  tags:
+    - supervisord
+    - app-deploy
+  notify: Restart supervisord

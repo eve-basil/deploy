@@ -1,0 +1,13 @@
+; {{ ansible_managed }}
+; UWSGI for {{ app_name }}
+[program:{{ app_service_name }}]
+user={{ web_group }}
+
+command={{ uwsgi_venv }}/bin/uwsgi --ini {{ uwsgi_config_path }}/{{ uwsgi_app_ini }}
+
+stopsignal=TERM
+
+stdout_logfile = {{ web_root }}/logs/supervisor/{{ app_name }}-application.log
+stdout_logfile_backups = 5
+stderr_logfile = {{ web_root }}/logs/supervisor/{{ app_name }}-error.log
+stderr_logfile_backups = 5

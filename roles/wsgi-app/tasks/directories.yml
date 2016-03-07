@@ -1,0 +1,39 @@
+---
+- name: Setup webapp deployment folder with the correct permissions
+  file: path={{ web_root }} state=directory
+        owner={{ web_group }} group={{ web_group }} mode=0774
+  become: yes
+  tags:
+    - directories
+
+- name: Setup webapp deployment configuration + log folders with the correct permissions
+  file: path={{ web_root }}/{{ item }} state=directory
+        owner={{ web_group }} group={{ web_group }} mode=0774
+  with_items:
+      - config
+      - config/uwsgi
+      - logs
+      - virtualenvs
+  become: yes
+  tags:
+    - directories
+
+- name: Link remote folders with webapp home folder
+  file: state=link
+        path={{ web_root }}/{{ item.value }}
+        src={{ item.key }}
+        owner={{ web_group }} group={{ web_group }} mode=0774
+  with_dict:
+      /etc/nginx: config/nginx
+      /etc/supervisor: config/supervisor
+      /var/log/nginx: logs/nginx
+      /var/log/supervisor: logs/supervisor
+  become: yes
+  tags:
+    - directories
+
+- name: Add user to webserver group
+  user: name={{ web_user }} append=yes groups={{ web_group }}
+  become: yes
+  tags:
+    - directories

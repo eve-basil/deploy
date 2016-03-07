@@ -1,0 +1,25 @@
+# modeled after https://github.com/openstack/openstack-ansible-pip_install/
+---
+
+- name: Get PIP
+  get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: /opt/get-pip.py
+  register: got_pip
+  become: yes
+  tags:
+    - system-python
+
+- name: Install PIP
+  command: python /opt/get-pip.py
+  when: got_pip | changed
+  become: yes
+  tags:
+    - system-python
+
+- name: Install System Python Packages
+  pip: name={{ item }} state=present
+  with_items: "{{ system_python_pkgs }}"
+  become: yes
+  tags:
+    - system-python

@@ -1,0 +1,89 @@
+---
+# Pre-Deploy Playbook
+- name: **** Prepare host for deploy
+  hosts: basil
+  remote_user: root
+
+  tasks:
+  - name: Install general system packages
+    apt: pkg={{ item }} state=latest update_cache=yes
+    with_items:
+      - fail2ban
+      - git
+      - vim
+      - tmux
+
+  - name: Find authorized keys file
+    stat: path=/home/ubuntu/.ssh/authorized_keys
+    register: keyfile
+
+  - name: Remove empty authorized keys file
+    file: path=/home/ubuntu/.ssh/authorized_keys state=absent
+    when:
+      - keyfile.stat is defined
+      - keyfile.stat.isreg is defined
+      - keyfile.stat.isreg
+      - keyfile.stat.size == 0
+
+  - name: Replcate authorized key
+    command: cp /root/.ssh/authorized_keys /home/ubuntu/.ssh/authorized_keys
+    args:
+      creates: /home/ubuntu/.ssh/authorized_keys
+
+  - name: Lock down authorized key
+    file: path=/home/ubuntu/.ssh/authorized_keys owner=ubuntu group=ubuntu state=file mode=0600
+
+  - name: Forbid password auth
+    lineinfile:
+      dest=/etc/ssh/sshd_config
+      regexp='^PasswordAuthentication'
+      line='PasswordAuthentication no'
+    notify: Restart sshd
+
+  - name: Disallow DNS lookups by sshd
+    lineinfile:
+      dest=/etc/ssh/sshd_config
+      regexp='^UseDNS'
+      line='UseDNS no'
+    notify: Restart sshd
+
+  - name: Disallow X11Forwarding
+    lineinfile:
+      dest=/etc/ssh/sshd_config
+      regexp='^X11Forwarding'
+      line='X11Forwarding no'
+    notify: Restart sshd
+
+  - name: Enable TCPKeepAlive
+    lineinfile:
+      dest=/etc/ssh/sshd_config
+      regexp='TCPKeepAlive'
+      line='TCPKeepAlive yes'
+    notify: Restart sshd
+
+  handlers:
+  - name: Restart sshd
+    service: name=ssh state=restarted
+
+# Main Deployment Playbook
+- name: **** Deploy web services (use existing DBs + caches)
+  hosts: basil
+  remote_user: ubuntu
+  become: True
+  roles:
+  - { role: wsgi-app,
+      app_name: refapi,
+      nginx_host: "refapi.basil.{{ root_domain }}",
+      uwsgi_port: 8080,
+      wsgi_app_entry: "basil_refapi.server:application",
+      wsgi_envs: "{{ refapi_envs }}", }
+  - { role: wsgi-app,
+      app_name: watches,
+      nginx_host: "watches.basil.{{ root_domain }}",
+      uwsgi_port: 8081,
+      wsgi_envs: "{{ watches_envs }}", }
+  - { role: wsgi-app,
+      app_name: prices,
+      nginx_host: "prices.basil.{{ root_domain }}",
+      uwsgi_port: 8082,
+      wsgi_envs: "{{ prices_envs }}", }
