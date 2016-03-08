@@ -1,6 +1,6 @@
 ---
 # Pre-Deploy Playbook
-- name: **** Prepare host for deploy
+- name: "**** Prepare host for deploy"
   hosts: basil
   remote_user: root
 
@@ -66,7 +66,7 @@
     service: name=ssh state=restarted
 
 # Main Deployment Playbook
-- name: **** Deploy web services (use existing DBs + caches)
+- name: "**** Deploy web services (use existing DBs + caches)"
   hosts: basil
   remote_user: ubuntu
   become: True
