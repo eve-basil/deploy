@@ -8,6 +8,9 @@
 - name: "** Prepare Supervisor"
   include: supervisor.yml
 
+# Restart Supervisord before we try to use it restart uwsgi apps
+- meta: flush_handlers
+
 - name: "** Prepare Web App Directories"
   include: directories.yml
 

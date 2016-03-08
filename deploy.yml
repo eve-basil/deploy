@@ -74,16 +74,16 @@
   - { role: wsgi-app,
       app_name: refapi,
       nginx_host: "refapi.basil.{{ root_domain }}",
-      uwsgi_port: 8080,
+      uwsgi_port: 8090,
       wsgi_app_entry: "basil_refapi.server:application",
       wsgi_envs: "{{ refapi_envs }}", }
   - { role: wsgi-app,
       app_name: watches,
       nginx_host: "watches.basil.{{ root_domain }}",
-      uwsgi_port: 8081,
+      uwsgi_port: 8091,
       wsgi_envs: "{{ watches_envs }}", }
   - { role: wsgi-app,
       app_name: prices,
       nginx_host: "prices.basil.{{ root_domain }}",
-      uwsgi_port: 8082,
+      uwsgi_port: 8092,
       wsgi_envs: "{{ prices_envs }}", }
