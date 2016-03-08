@@ -7,7 +7,7 @@ server {
     error_log   {{ web_root }}/logs/nginx/{{ app_name }}-error.log info;
 
     location /static/  {
-        alias   {{ app_nginx_static_path }};
+        alias   {{ nginx_static_path }};
     }
 
     location / {
