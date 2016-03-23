@@ -1,0 +1,40 @@
+---
+- name: Create a cron system group
+  group:
+    name: "{{ cron_user }}"
+    state: "present"
+    system: "yes"
+  become: yes
+  tags:
+    - directories
+    - cron-user
+
+- name: Create a cron system user
+  user:
+    name: "{{ cron_user }}"
+    group: "{{ cron_user }}"
+    system: "yes"
+    createhome: "yes"
+    home: "{{ cron_root }}"
+  become: yes
+  tags:
+    - directories
+    - cron-user
+
+- name: Setup cron app deployment root folder
+  file: path={{ cron_root }} state=directory
+        owner={{ cron_user }} group={{ cron_user }} mode=0774
+  become: yes
+  tags:
+    - directories
+
+- name: Setup cron app deployment configuration + log folders with the correct permissions
+  file: path={{ cron_root }}/{{ item }} state=directory
+        owner={{ cron_user }} group={{ cron_user }} mode=0774
+  with_items:
+      - config
+      - logs
+      - virtualenvs
+  become: yes
+  tags:
+    - directories

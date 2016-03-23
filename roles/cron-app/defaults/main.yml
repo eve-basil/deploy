@@ -1,0 +1,28 @@
+---
+cron_user: basil
+cron_group: basil
+app_name: unnamed
+
+cron_root: /srv/cron
+app_root: "{{ cron_root }}/{{ app_name }}"
+
+virtualenv_root: "{{ cron_root }}/virtualenvs"
+app_venv: "{{ virtualenv_root }}/{{ app_name }}"
+
+app_envs: {}
+config_path: "{{ cron_root }}/config/{{app_name}}.env"
+app_script: "{{ app_root }}/{{ app_name }}.py"
+log_path: "{{ cron_root }}/logs/{{app_name}}.log"
+
+month: "*"
+day: "*"
+hour: 1,5,9,13,17,21
+minute: 11
+
+system_python_pkgs:
+  - virtualenv
+
+app_system_pkgs: []
+
+app_python_deps:
+  - {name: "git+https://github.com/eve-basil/common", editable: "no"}

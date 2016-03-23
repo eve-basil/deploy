@@ -1,0 +1,12 @@
+---
+- name: "** Prepare System Python"
+  include: python.yml
+
+- name: "** Prepare Web App Directories"
+  include: directories.yml
+
+- name: "** Deploy App"
+  include: app.yml
+
+- name: "** Configure App"
+  include: configure.yml

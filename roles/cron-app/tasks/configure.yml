@@ -1,0 +1,21 @@
+---
+- name: Apply environment configuration file
+  template: src=app.env.j2 dest={{ config_path }}
+  tags:
+    - configure
+    - configfile
+
+- name: Install crontab entry for app
+  cron:
+    name: "{{ app_name }}"
+    user: "{{ cron_user }}"
+    month: "{{ month }}"
+    day: "{{ day }}"
+    hour: "{{ hour }}"
+    minute: "{{ minute }}"
+    job: "source {{ config_path }}; python {{ app_script }} >> {{ log_path }} 2>&1"
+  become: yes
+  become_user: "{{ cron_user }}"
+  tags:
+    - configure
+    - crontab

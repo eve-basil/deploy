@@ -1,0 +1,38 @@
+---
+- name: Install system packages
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+    update_cache: yes
+  with_items: "{{ app_system_pkgs }}"
+  become: yes
+  tags:
+    - apt
+    - app-deploy
+
+- name: Install general python packages in virtualenv
+  pip:
+    name: "{{ item.name | default(item) }}"
+    state: latest
+    extra_args: "{{ item.params | default('') }}"
+    virtualenv: "{{ app_venv }}"
+    editable: "{{ item.editable | default('yes') }}"
+  with_items: "{{ app_python_deps }}"
+  tags:
+    - app-deploy
+
+- name: Deploy app from repository
+  git:
+    repo: https://github.com/eve-basil/{{ app_name }}.git
+    dest: "{{ app_root }}"
+    update: yes
+  tags:
+    - app-deploy
+
+- name: Install app requirements in virtualenv
+  pip:
+    requirements: "{{ app_root }}/requirements.txt"
+    state: present
+    virtualenv: "{{ app_venv }}"
+  tags:
+    - app-deploy

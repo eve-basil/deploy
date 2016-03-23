@@ -87,3 +87,12 @@
       nginx_host: "prices.basil.{{ root_domain }}",
       uwsgi_port: 8092,
       wsgi_envs: "{{ prices_envs }}", }
+
+- name: "**** Deploy cron services (use existing DBs + caches)"
+  hosts: basil
+  remote_user: ubuntu
+  become: True
+  roles:
+  - { role: cron-app,
+      app_name: checker,
+      app_envs: "{{ checker_envs }}", }
