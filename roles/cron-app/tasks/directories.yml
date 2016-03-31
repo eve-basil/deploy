@@ -32,7 +32,6 @@
   file: path={{ cron_root }}/{{ item }} state=directory
         owner={{ cron_user }} group={{ cron_user }} mode=0774
   with_items:
-      - config
       - logs
       - virtualenvs
   become: yes

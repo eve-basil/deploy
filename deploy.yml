@@ -12,6 +12,8 @@
       - git
       - vim
       - tmux
+    tags:
+      - prepare_host
 
   - name: Find authorized keys file
     stat: path=/home/ubuntu/.ssh/authorized_keys
@@ -24,14 +26,20 @@
       - keyfile.stat.isreg is defined
       - keyfile.stat.isreg
       - keyfile.stat.size == 0
+    tags:
+      - prepare_host
 
   - name: Replcate authorized key
     command: cp /root/.ssh/authorized_keys /home/ubuntu/.ssh/authorized_keys
     args:
       creates: /home/ubuntu/.ssh/authorized_keys
+    tags:
+      - prepare_host
 
   - name: Lock down authorized key
     file: path=/home/ubuntu/.ssh/authorized_keys owner=ubuntu group=ubuntu state=file mode=0600
+    tags:
+      - prepare_host
 
   - name: Forbid password auth
     lineinfile:
@@ -39,6 +47,8 @@
       regexp='^PasswordAuthentication'
       line='PasswordAuthentication no'
     notify: Restart sshd
+    tags:
+      - prepare_host
 
   - name: Disallow DNS lookups by sshd
     lineinfile:
@@ -46,6 +56,8 @@
       regexp='^UseDNS'
       line='UseDNS no'
     notify: Restart sshd
+    tags:
+      - prepare_host
 
   - name: Disallow X11Forwarding
     lineinfile:
@@ -53,6 +65,8 @@
       regexp='^X11Forwarding'
       line='X11Forwarding no'
     notify: Restart sshd
+    tags:
+      - prepare_host
 
   - name: Enable TCPKeepAlive
     lineinfile:
@@ -60,6 +74,8 @@
       regexp='TCPKeepAlive'
       line='TCPKeepAlive yes'
     notify: Restart sshd
+    tags:
+      - prepare_host
 
   handlers:
   - name: Restart sshd
@@ -76,17 +92,20 @@
       nginx_host: "refapi.basil.{{ root_domain }}",
       uwsgi_port: 8090,
       wsgi_app_entry: "basil_refapi.server:application",
-      wsgi_envs: "{{ refapi_envs }}", }
+      wsgi_envs: "{{ refapi_envs }}",
+      tags: ['wsgi', 'refapi'] }
   - { role: wsgi-app,
       app_name: watches,
       nginx_host: "watches.basil.{{ root_domain }}",
       uwsgi_port: 8091,
-      wsgi_envs: "{{ watches_envs }}", }
+      wsgi_envs: "{{ watches_envs }}",
+      tags: ['wsgi', 'watches'] }
   - { role: wsgi-app,
       app_name: prices,
       nginx_host: "prices.basil.{{ root_domain }}",
       uwsgi_port: 8092,
-      wsgi_envs: "{{ prices_envs }}", }
+      wsgi_envs: "{{ prices_envs }}",
+      tags: ['wsgi', 'prices'] }
 
 - name: "**** Deploy cron services (use existing DBs + caches)"
   hosts: basil
@@ -95,4 +114,5 @@
   roles:
   - { role: cron-app,
       app_name: checker,
-      app_envs: "{{ checker_envs }}", }
+      app_envs: "{{ checker_envs }}",
+      tags: ['cron', 'checker'] }

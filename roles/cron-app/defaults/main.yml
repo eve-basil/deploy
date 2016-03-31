@@ -10,13 +10,12 @@ virtualenv_root: "{{ cron_root }}/virtualenvs"
 app_venv: "{{ virtualenv_root }}/{{ app_name }}"
 
 app_envs: {}
-config_path: "{{ cron_root }}/config/{{app_name}}.env"
 app_script: "{{ app_root }}/{{ app_name }}.py"
 log_path: "{{ cron_root }}/logs/{{app_name}}.log"
 
 month: "*"
 day: "*"
-hour: 1,5,9,13,17,21
+hour: 0,6,12,18
 minute: 11
 
 system_python_pkgs:

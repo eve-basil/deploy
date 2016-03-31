@@ -1,6 +1,12 @@
 ---
-- name: Apply environment configuration file
-  template: src=app.env.j2 dest={{ config_path }}
+- name: Deploy wrapper script
+  template:
+    src: wrapper.sh.j2
+    dest: "{{ app_root }}/start.sh"
+    owner: "{{cron_user }}"
+    group: "{{ cron_user }}"
+    mode: 0744
+  become: yes
   tags:
     - configure
     - configfile
@@ -13,7 +19,7 @@
     day: "{{ day }}"
     hour: "{{ hour }}"
     minute: "{{ minute }}"
-    job: "source {{ config_path }}; python {{ app_script }} >> {{ log_path }} 2>&1"
+    job: "{{ app_root }}/start.sh >> {{ log_path }} 2>&1"
   become: yes
   become_user: "{{ cron_user }}"
   tags:

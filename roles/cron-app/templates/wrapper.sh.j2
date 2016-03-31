@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+{% for envname, envvalue in app_envs.items() %}
+export {{ envname | upper }}={{ envvalue }}
+{% endfor %}
+
+echo "**** STARTING"
+START_TIME=$SECONDS
+{{ app_venv }}/bin/python {{ app_script }}
+ELAPSED_TIME=$(($SECONDS - $START_TIME))
+echo "**** COMPLETE"
+echo "**** RUN TIME: $(($ELAPSED_TIME/60)) min $(($ELAPSED_TIME%60)) sec"
