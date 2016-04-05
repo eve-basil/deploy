@@ -46,8 +46,28 @@
   tags:
     - nginx
 
+- name: Configure custom nginx log format
+  lineinfile:
+    insertbefore: access_log
+    dest: "/etc/nginx/nginx.conf"
+    line: "log_format custom '{{ nginx_access_log_format_combined }} {{ nginx_access_log_format_extras }}';"
+  become: yes
+  tags:
+    - nginx
+  notify: Restart nginx
+
+- name: Configure status host
+  template:
+    src: nginx_status_conf.j2
+    dest: "/etc/nginx/sites-available/nginx_status.conf"
+  become: yes
+  tags:
+    - nginx
+  when: nginx_status_host is defined
+  notify: Restart nginx
+
 # Configure app
-- name: Configure nginx
+- name: Configure virtual host
   template:
     src: nginx_app_conf.j2
     dest: "/etc/nginx/sites-available/{{ nginx_app_config }}"
@@ -57,7 +77,18 @@
     - app-deploy
   notify: Restart nginx
 
-- name: Link to enable nginx configuration
+- name: Link to enable nginx status configuration
+  file:
+    src: "/etc/nginx/sites-available/nginx_status.conf"
+    path: "/etc/nginx/sites-enabled/nginx_status.conf"
+    state: link
+  become: yes
+  tags:
+    - nginx
+  when: nginx_status_host is defined
+  notify: Restart nginx
+
+- name: Link to enable nginx app configuration
   file:
     src: "/etc/nginx/sites-available/{{ nginx_app_config }}"
     path: "/etc/nginx/sites-enabled/{{ nginx_app_config }}"

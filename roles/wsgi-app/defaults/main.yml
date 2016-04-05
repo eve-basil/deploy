@@ -14,6 +14,10 @@ uwsgi_config_path: "{{ web_root }}/config/uwsgi"
 app_root: "{{ web_root }}/{{ app_name }}"
 nginx_static_path: "{{ app_root }}/{{ app_name }}/static/"
 
+
+nginx_access_log_format_combined: '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"'
+nginx_access_log_format_extras: '$request_time $upstream_response_time'
+
 virtualenv_root: "{{ web_root }}/virtualenvs"
 app_venv: "{{ virtualenv_root }}/{{ app_name }}"
 uwsgi_venv: "{{ virtualenv_root }}/uwsgi"
