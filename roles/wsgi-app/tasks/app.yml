@@ -1,16 +1,17 @@
 ---
-- name: Install system packages
+- name: Install system packages for app
   apt:
     pkg: "{{ item }}"
     state: latest
     update_cache: yes
   with_items: "{{ app_system_pkgs }}"
+  notify: Restart uwsgi app
   become: yes
   tags:
     - apt
     - app-deploy
 
-- name: Install general python packages in virtualenv
+- name: Install general python packages for app
   pip:
     name: "{{ item.name | default(item) }}"
     state: latest
@@ -36,5 +37,6 @@
     requirements: "{{ app_root }}/requirements.txt"
     state: present
     virtualenv: "{{ app_venv }}"
+  notify: Restart uwsgi app
   tags:
     - app-deploy

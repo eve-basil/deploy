@@ -1,5 +1,5 @@
 ---
-- name: Ensure system package dependencies
+- name: Ensure system package dependencies for uwsgi
   apt: pkg={{ item }}
   with_items:
     - build-essential
@@ -10,14 +10,18 @@
     - uwsgi
 
 - name: Install uwsgi server
-  pip: name=uwsgi virtualenv={{ uwsgi_venv }}
+  pip: name={{ item }} virtualenv={{ uwsgi_venv }}
   become: yes
+  with_items:
+    - uwsgi
+    - uwsgitop
   tags:
     - uwsgi
 
 - name: Configure app under uwsgi server
   template: src=uwsgi_app_ini.j2 dest={{ uwsgi_config_path }}/{{ uwsgi_app_ini }}
   become: yes
+  notify: Restart uwsgi app
   tags:
     - uwsgi
     - app-deploy

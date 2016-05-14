@@ -40,5 +40,6 @@ app_python_deps:
   - falcon
   - pyyaml
   - hiredis
+  - mysql-python
   - {name: "git+https://github.com/eve-basil/common", editable: "no"}
 

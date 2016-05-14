@@ -107,12 +107,36 @@
       wsgi_envs: "{{ prices_envs }}",
       tags: ['wsgi', 'prices'] }
 
-- name: "**** Deploy cron services (use existing DBs + caches)"
+- name: "**** Deploy checker cron service (use existing DBs + caches)"
   hosts: basil
   remote_user: ubuntu
   become: True
   roles:
+
   - { role: cron-app,
       app_name: checker,
       app_envs: "{{ checker_envs }}",
       tags: ['cron', 'checker'] }
+
+- name: "**** Deploy prospector cron service (use existing DBs + caches)"
+  hosts: basil
+  remote_user: ubuntu
+  become: True
+  pre_tasks:
+  - name: Ensure paths
+    file: path={{ item | dirname }} state=directory
+          owner={{ report_owner }} group={{ report_owner }} mode=0774
+    with_items:
+      - prospector_corp_envs.OUTPUT_PATH
+    become: yes
+    tags:
+      - directories
+  roles:
+  - { role: cron-app,
+      app_name: prospector,
+      app_envs: "{{ prospector_corp_envs }}",
+      hour: "1,7,13,19",
+      minute: 22,
+      tags: ['cron', 'prospector'] }
+  vars:
+  - report_owner: www-data
