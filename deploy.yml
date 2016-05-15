@@ -127,10 +127,12 @@
     file: path={{ item | dirname }} state=directory
           owner={{ report_owner }} group={{ report_owner }} mode=0774
     with_items:
-      - prospector_corp_envs.OUTPUT_PATH
+      - "{{ prospector_corp_envs.OUTPUT_PATH }}"
     become: yes
     tags:
       - directories
+      - cron
+      - prospector
   roles:
   - { role: cron-app,
       app_name: prospector,
